@@ -8,7 +8,7 @@ namespace Misc
 {
     public class ValueContainer
     {
-        public string data { get; set; }
+        public object data { get; set; }
 
         public DateTime? expireTime { get; set; }
     }

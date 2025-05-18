@@ -1,26 +1,28 @@
 ﻿using Misc;
 using System;
-using System.Collections.Generic;
+using System.Collections;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace DatabaseLib.DataStruct
 {
-    public class DictDb : DbCentral<Dictionary<string, ValueContainer>>
+    public class DictDb: DbCentral 
     {
+        public ConcurrentDictionary<string, ValueContainer> NedisDb { get; set; }
         public DictDb()
         {
             DbName = "Dictionary";
-            NedisDb = new Dictionary<string, ValueContainer>();
+            NedisDb = new ConcurrentDictionary<string, ValueContainer>();
         }
 
 
-        public override ResponseModel DbRemoveValue(string value, string key = null)
+        public override ResponseModel DbRemoveValue(string value, string? key = null)
         {
             try
-            {
-                var checkKey = NedisDb.TryGetValue(key, out ValueContainer result);
+            { 
+                var checkKey = NedisDb.TryGetValue(key, out ValueContainer? result);
                 if (!checkKey)
                 {
                     return new ResponseModel
@@ -29,7 +31,7 @@ namespace DatabaseLib.DataStruct
                     };
                 }
 
-                NedisDb.Remove(key);
+                NedisDb.Remove(key, out _);
                 return new ResponseModel
                 {
                     ErrorMessage = "Successful"
@@ -45,13 +47,13 @@ namespace DatabaseLib.DataStruct
             }
         }
 
-        public override ResponseModel DbSetValue(string value, string? key = null, double expiryTime = 0)
+        public override ResponseModel DbSetValue(IEnumerable value, string? key = null, TimeSpan ttl = default)
         {
-            var checkKey = NedisDb.TryGetValue(key, out ValueContainer result);
+            var checkKey = NedisDb.TryGetValue(key, out ValueContainer? result);
             NedisDb[key] = new ValueContainer
             {
                 data = value,
-                expireTime = DateTime.Now.AddSeconds(expiryTime),
+                expireTime = ttl != default ? DateTime.UtcNow.Add(ttl) : default(DateTime),
             };
 
             if (checkKey)
@@ -75,7 +77,7 @@ namespace DatabaseLib.DataStruct
         {
             try
             {
-                var value = NedisDb.TryGetValue(key, out ValueContainer result);
+                var value = NedisDb.TryGetValue(key, out ValueContainer? result);
                 expiryValue = null;
                 if (!value)
                 {
@@ -87,15 +89,16 @@ namespace DatabaseLib.DataStruct
                 if (result != null && result.expireTime != null)
                 {
                     expiryValue = result.expireTime;
-                    if (DateTime.Now > result.expireTime)
-                    {
-                        NedisDb.Remove(key);
-                        return new ResponseModel
-                        {
-                            ErrorMessage = "Key has expired",
-                        };
+                    //if (DateTime.UtcNow > result.expireTime)
+                    //{
+                    //    NedisDb.Remove(key, out _);
+                    //    return new ResponseModel
+                    //    {
+                    //        data = "Expired!!!!",
+                    //        ErrorMessage = "Key has expired",
+                    //    };
 
-                    }
+                    //}
                 }
                 return new ResponseModel
                 {

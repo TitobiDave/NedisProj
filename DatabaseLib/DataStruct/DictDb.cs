@@ -89,16 +89,16 @@ namespace DatabaseLib.DataStruct
                 if (result != null && result.expireTime != null)
                 {
                     expiryValue = result.expireTime;
-                    //if (DateTime.UtcNow > result.expireTime)
-                    //{
-                    //    NedisDb.Remove(key, out _);
-                    //    return new ResponseModel
-                    //    {
-                    //        data = "Expired!!!!",
-                    //        ErrorMessage = "Key has expired",
-                    //    };
+                    if (DateTime.UtcNow > result.expireTime)
+                    {
+                        NedisDb.Remove(key, out _);
+                        return new ResponseModel
+                        {
+                            data = "Expired!!!!",
+                            ErrorMessage = "Key has expired",
+                        };
 
-                    //}
+                    }
                 }
                 return new ResponseModel
                 {

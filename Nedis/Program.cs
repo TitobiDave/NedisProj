@@ -6,12 +6,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MiscLib.BackgroundOperation;
 
-HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
+var host = new HostBuilder().ConfigureHostConfiguration(hconfig=> {}).ConfigureServices((context, services) =>
+{
+    services.AddSingleton<DictDb>();               //  in‑memory DB
+    services.AddHostedService<CheckExpiredTTL>();  // the background checker
+}).UseConsoleLifetime().Build();
 
-builder.Services.AddSingleton<DictDb>();
-builder.Services.AddHostedService<CheckExpiredTTL>();
+await host.StartAsync();
 
-
-
-using IHost host = builder.Build();
-await host.RunAsync();
+Console.ReadLine();

@@ -18,7 +18,7 @@ namespace DatabaseLib.DataStruct
         }
 
 
-        public override ResponseModel DbRemoveValue(string value, string? key = null)
+        public override ResponseModel DbRemoveValue(string? key = null)
         {
             try
             { 
@@ -47,7 +47,7 @@ namespace DatabaseLib.DataStruct
             }
         }
 
-        public override ResponseModel DbSetValue(IEnumerable value, string? key = null, TimeSpan ttl = default)
+        public override ResponseModel DbSetValue(string key, IEnumerable value, TimeSpan ttl = default)
         {
             var checkKey = NedisDb.TryGetValue(key, out ValueContainer? result);
             NedisDb[key] = new ValueContainer
@@ -81,10 +81,12 @@ namespace DatabaseLib.DataStruct
                 expiryValue = null;
                 if (!value)
                 {
+                    Console.WriteLine("Key doesn't exist");
                     return new ResponseModel
                     {
                         ErrorMessage = "key doesn't exist"
                     };
+
                 }
                 if (result != null && result.expireTime != null)
                 {
@@ -92,6 +94,7 @@ namespace DatabaseLib.DataStruct
                     if (DateTime.UtcNow > result.expireTime)
                     {
                         NedisDb.Remove(key, out _);
+                        Console.WriteLine("Key has expired");
                         return new ResponseModel
                         {
                             data = "Expired!!!!",
@@ -100,6 +103,7 @@ namespace DatabaseLib.DataStruct
 
                     }
                 }
+                Console.WriteLine(result.data);
                 return new ResponseModel
                 {
                     data = result.data,

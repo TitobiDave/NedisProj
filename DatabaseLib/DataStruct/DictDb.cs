@@ -1,4 +1,5 @@
-﻿using Misc;
+﻿
+using Misc;
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
@@ -8,16 +9,19 @@ using System.Threading.Tasks;
 
 namespace DatabaseLib.DataStruct
 {
-    public class DictDb: DbCentral 
+    public class DictDb: DbCentral
     {
-        public ConcurrentDictionary<string, ValueContainer> NedisDb { get; set; }
+        private readonly ConcurrentDictionary<string, ValueContainer> NedisDb;
         public DictDb()
         {
             DbName = "Dictionary";
             NedisDb = new ConcurrentDictionary<string, ValueContainer>();
         }
 
-
+        public ConcurrentDictionary<string, ValueContainer> NEDISDB
+        {
+            get { return NedisDb; }
+        }
         public override ResponseModel DbRemoveValue(string? key = null)
         {
             try
@@ -47,29 +51,38 @@ namespace DatabaseLib.DataStruct
             }
         }
 
-        public override ResponseModel DbSetValue(string key, IEnumerable value, TimeSpan ttl = default)
+        public override ResponseModel DbSetValue(string key, object value, TimeSpan ttl = default)
         {
-            var checkKey = NedisDb.TryGetValue(key, out ValueContainer? result);
-            NedisDb[key] = new ValueContainer
+            try
             {
-                data = value,
-                expireTime = ttl != default ? DateTime.UtcNow.Add(ttl) : default(DateTime),
-            };
+                var checkKey = NedisDb.TryGetValue(key, out ValueContainer? result);
+                NedisDb[key] = new ValueContainer
+                {
+                    data = value,
+                    expireTime = ttl != default ? DateTime.UtcNow.Add(ttl) : null,
+                };
 
-            if (checkKey)
-            {
+                if (checkKey)
+                {
 
+                    return new ResponseModel
+                    {
+                        data = value,
+                        ErrorMessage = "value overwritten"
+                    };
+                }
                 return new ResponseModel
                 {
                     data = value,
-                    ErrorMessage = "value overwritten"
+                    ErrorMessage = "Added successfully"
                 };
             }
-            return new ResponseModel
+            catch (Exception ex)
             {
-                data = value,
-                ErrorMessage = "Added successfully"
-            };
+
+                throw;
+            }
+            
 
         }
 

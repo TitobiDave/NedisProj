@@ -43,22 +43,39 @@ Nedis is a lightweight, Redis-inspired in-memory key-value store library built i
 ## Usage
 
 ```csharp
+using CommandLib;
+using DatabaseLib;
 using DatabaseLib.DataStruct;
+using DatabaseLib.DataStruct.ListDb.Contract;
+using DatabaseLib.Sevices.Expiration.Contract;
+using DatabaseLib.Sevices.Expiration.Handler;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using MiscLib.BackgroundOperation;
 
-var db = new DictDb();
+var host = new HostBuilder().ConfigureHostConfiguration(hconfig=> {}).ConfigureServices((context, services) =>
+{
+    services.AddSingleton<DictDb>();               //  in‑memory DB
+    services.AddSingleton<Command>();
+    services.AddScoped<IExpireKey, ExpireKey>();
+    services.AddHostedService<CheckExpiredTTL>();  // the background checker
+}).UseConsoleLifetime().Build();
 
-// Set a key with a 60-second TTL
-var setResult = db.DbSetValue("myKey", "myValue", expiryTime: 60);
-Console.WriteLine(setResult.Message);
+await host.StartAsync();
 
-// Get the key
-var getResult = db.GetItemByKey("myKey", out DateTime? expireAt);
-Console.WriteLine(getResult.Data);  // "myValue"
-Console.WriteLine(expireAt);       // Expiry timestamp
+var exec = host.Services.GetService<Command>();
 
-// Delete the key
-var delResult = db.DbRemoveValue(value: null, key: "myKey");
-Console.WriteLine(delResult.Message);
+var dictDb = host.Services.GetService<DictDb>();
+
+var query = "";
+while (query.ToUpper() != "EXIT")
+{
+    Console.Write(">>> ");
+    query = Console.ReadLine();
+    var result = exec.ParseCommand(query);
+
+}
+await host.StopAsync();
 ```
 
 ## Extending Nedis

@@ -18,7 +18,7 @@ namespace MiscLib.BackgroundOperation
         public CheckExpiredTTL(DictDb db)
         {
             _db = db;
-        }
+        } 
 
     
 
@@ -27,11 +27,11 @@ namespace MiscLib.BackgroundOperation
             while (!stoppingToken.IsCancellationRequested)
             {
                 await Task.Delay(1000);
-                foreach (KeyValuePair<string, ValueContainer> item in _db.NedisDb)
+                foreach (KeyValuePair<string, ValueContainer> item in _db.NEDISDB)
                 {
                     if (DateTime.UtcNow > item.Value.expireTime && item.Value.expireTime != null)
                     {
-                        _db.NedisDb.Remove(item.Key, out _);
+                        _db.NEDISDB.Remove(item.Key, out _);
                     }
 
                 }

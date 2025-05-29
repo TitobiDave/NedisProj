@@ -11,8 +11,8 @@ namespace DatabaseLib
         protected string DbName;
 
         
-        public abstract ResponseModel DbRemoveValue(string value, string key = default);
-        public abstract ResponseModel DbSetValue(IEnumerable value, string key = default, TimeSpan ttl = default);
+        public abstract ResponseModel DbRemoveValue(string key);
+        public abstract ResponseModel DbSetValue(string key, object value, TimeSpan ttl = default);
 
         public abstract ResponseModel GetItemByKey(string key, out DateTime? expiryValue);
        

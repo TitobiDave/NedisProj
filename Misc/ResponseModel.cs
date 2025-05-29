@@ -11,5 +11,7 @@ namespace Misc
         public object? data { get; set; }
 
         public string? ErrorMessage {  get; set; }
+
+        public bool IsSuccesful { get; set; }
     }
 }

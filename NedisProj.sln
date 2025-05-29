@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiscLib", "Misc\MiscLib.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerLib", "ServerLib\ServerLib.csproj", "{742B1E68-8C95-4D9F-62C1-78ADF9045E97}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NedisTest", "NedisTest\NedisTest.csproj", "{4CA29E40-3A20-454C-A0E0-C77D5917198D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{742B1E68-8C95-4D9F-62C1-78ADF9045E97}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{742B1E68-8C95-4D9F-62C1-78ADF9045E97}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{742B1E68-8C95-4D9F-62C1-78ADF9045E97}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4CA29E40-3A20-454C-A0E0-C77D5917198D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4CA29E40-3A20-454C-A0E0-C77D5917198D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4CA29E40-3A20-454C-A0E0-C77D5917198D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4CA29E40-3A20-454C-A0E0-C77D5917198D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

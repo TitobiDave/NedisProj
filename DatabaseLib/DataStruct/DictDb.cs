@@ -1,20 +1,22 @@
 ﻿
+using DatabaseLib.DataStruct.ListDb.Contract;
 using Misc;
+using Misc.Tokens;
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace DatabaseLib.DataStruct
 {
-    public class DictDb: DbCentral
+    public class DictDb
     {
-        private readonly ConcurrentDictionary<string, ValueContainer> NedisDb;
+        private protected readonly ConcurrentDictionary<string, ValueContainer> NedisDb;
         public DictDb()
         {
-            DbName = "Dictionary";
             NedisDb = new ConcurrentDictionary<string, ValueContainer>();
         }
 
@@ -22,7 +24,7 @@ namespace DatabaseLib.DataStruct
         {
             get { return NedisDb; }
         }
-        public override ResponseModel DbRemoveValue(string? key = null)
+        public virtual ResponseModel DbRemoveValue(string? key = null)
         {
             try
             { 
@@ -51,7 +53,7 @@ namespace DatabaseLib.DataStruct
             }
         }
 
-        public override ResponseModel DbSetValue(string key, object value, TimeSpan ttl = default)
+        public virtual ResponseModel DbSetValue(string key, object value, TimeSpan ttl = default)
         {
             try
             {
@@ -85,8 +87,27 @@ namespace DatabaseLib.DataStruct
             
 
         }
-
-        public override ResponseModel GetItemByKey(string key, out DateTime? expiryValue)
+        public  ResponseModel DbSetList(string key, object value, TimeSpan ttl = default)
+        {
+            try
+            {
+                ITokenizer _tokenizer;
+                if (value == null)
+                {
+                    throw new InvalidOperationException("Value cannot be null");
+                }
+                var strVal = value as string;
+                _tokenizer = new Tokenizer(strVal);
+                List<Token> result = _tokenizer.Tokenize();
+                return DbSetValue(key, result, ttl);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(string.Format("An error occured: {0}", ex.Message));
+                throw;
+            }
+        }
+        public virtual ResponseModel GetItemByKey(string key, out DateTime? expiryValue, string index = default)
         {
             try
             {
@@ -116,7 +137,17 @@ namespace DatabaseLib.DataStruct
 
                     }
                 }
-                Console.WriteLine(result.data);
+                if(index != default && result.data is List<Token>)
+                {
+                    List<Token> item = (List<Token>)result.data;
+                    int numIndex = Convert.ToInt32(index);
+                    Console.WriteLine(item[numIndex]);
+                    return new ResponseModel
+                    {
+                        data = result.data,
+                    };
+                }
+                Console.WriteLine(result);
                 return new ResponseModel
                 {
                     data = result.data,
@@ -125,6 +156,7 @@ namespace DatabaseLib.DataStruct
             catch (Exception ex)
             {
                 expiryValue = null;
+                Console.WriteLine(ex.Message);
                 return new ResponseModel
                 {
                     ErrorMessage = ex.Message

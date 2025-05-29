@@ -3,6 +3,7 @@
 using CommandLib;
 using DatabaseLib;
 using DatabaseLib.DataStruct;
+using DatabaseLib.DataStruct.ListDb.Contract;
 using DatabaseLib.Sevices.Expiration.Contract;
 using DatabaseLib.Sevices.Expiration.Handler;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,7 +20,6 @@ var host = new HostBuilder().ConfigureHostConfiguration(hconfig=> {}).ConfigureS
 
 await host.StartAsync();
 
-
 var exec = host.Services.GetService<Command>();
 
 var dictDb = host.Services.GetService<DictDb>();
@@ -27,8 +27,9 @@ var dictDb = host.Services.GetService<DictDb>();
 var query = "";
 while (query.ToUpper() != "EXIT")
 {
-    var result = exec.ParseCommand(query);
     Console.Write(">>> ");
     query = Console.ReadLine();
+    var result = exec.ParseCommand(query);
+
 }
 await host.StopAsync();
